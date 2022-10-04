@@ -11,11 +11,23 @@ from Convert_to_text import solve_captcha
 from dotenv import load_dotenv
 import os
 
+#load variables
 load_dotenv()
 email = os.getenv('email')
 paswd = os.getenv('paswd')
 chrome_profile = os.getenv('Chrome_profile')
 delay = os.getenv('Delay')
+
+#start browser
+opts = uc.ChromeOptions()
+if chrome_profile == 'None':
+    opts.add_argument('incognito')
+else:
+    opts.add_argument(fr"--user-data-dir={chrome_profile}")
+driver = uc.Chrome(options=opts,use_subprocess=True)#
+driver.maximize_window()
+
+
 
 def sleep(waiting_time=5):
     driver.implicitly_wait(waiting_time)
@@ -26,14 +38,6 @@ def delete_sample_files():
             os.remove("sample.wav")
         else:
             print("The file does not exist")
-
-#start browser
-opts = uc.ChromeOptions()
-opts.add_argument('incognito')
-#opts.add_argument(fr"--user-data-dir={chrome_profile}")
-driver = uc.Chrome(options=opts,use_subprocess=True)#
-driver.maximize_window()
-
 
 #goto page
 def open_page():
