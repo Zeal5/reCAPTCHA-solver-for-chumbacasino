@@ -10,7 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from Convert_to_text import solve_captcha
 from dotenv import load_dotenv
 import os
-
+import uuid
 #load variables
 load_dotenv()
 email = os.getenv('email')
@@ -114,19 +114,24 @@ def request_postal_code():
     driver.find_element(By.XPATH,'/html/body/div/div/div[6]/input').send_keys(captcha_solution)
     sleep(5)
     driver.find_element(By.XPATH,'/html/body/div/div/div[8]/div[2]/div[1]/div[2]/button').click()
-    time.sleep(2)
+    time.sleep(3)
+
+    #get postal code img
+
+    driver.save_screenshot(f"screenshots\{str(uuid.uuid4())}.png")
+
 
     #get the postal code
-    try:
-        code = driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div/div/p[2]').text
-        print(code)
-    except common.exceptions.NoSuchElementException:
-        print('restarting')
-        return
+# try:
+#     code = driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div/div/p[2]').text
+#     print(code)
+# except common.exceptions.NoSuchElementException:
+#     print('restarting')
+#     return
 
-    if code is not None:
-        with open('postal_codes.txt','a+') as file:
-            file.write(f"{code}\n")
+# if code is not None:
+#     with open('postal_codes.txt','a+') as file:
+#         file.write(f"{code}\n")
     
 while True:
     request_postal_code()
