@@ -35,6 +35,7 @@ def sleep(waiting_time=5):
 def delete_sample_files():
         if os.path.exists("sample.mp3"):
             os.remove("sample.mp3")
+        if os.path.exists("sample.wav"):
             os.remove("sample.wav")
         else:
             print("The file does not exist")
@@ -55,7 +56,7 @@ def log_in():
 #goto Postal request code
 
 def request_postal_code():
-    time.sleep(int(delay))
+    
     open_page()
     delete_sample_files()
     if driver.current_url == "https://login.chumbacasino.com/":
@@ -83,10 +84,13 @@ def request_postal_code():
     except common.exceptions.NoSuchElementException:
         print('trying except block')
         driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div[3]/footer/div/ul[1]/li[5]/button').click()
+
+
     #click the get postal code button at 2nd last page
     print('entering 2nd last page')
-    
+    time.sleep(9)
     driver.find_element(By.ID,'get-postal-request-code').click()
+    
 
     time.sleep(8)
     print('clicking the check-box')
@@ -100,6 +104,9 @@ def request_postal_code():
     #switching to the select all images iframe
     WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH,"/html/body/div/div[4]/iframe")))
     print('fetching the url')
+
+
+        
     a = driver.find_element(By.XPATH, '//*[@id="recaptcha-audio-button"]').click()
     print('got element')
     ####here#####
@@ -119,19 +126,10 @@ def request_postal_code():
     #get postal code img
 
     driver.save_screenshot(f"screenshots\{str(uuid.uuid4())}.png")
+    time.sleep(int(delay))
 
 
-    #get the postal code
-# try:
-#     code = driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div/div/p[2]').text
-#     print(code)
-# except common.exceptions.NoSuchElementException:
-#     print('restarting')
-#     return
 
-# if code is not None:
-#     with open('postal_codes.txt','a+') as file:
-#         file.write(f"{code}\n")
     
 while True:
     request_postal_code()
