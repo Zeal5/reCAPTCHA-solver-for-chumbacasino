@@ -33,7 +33,8 @@ def solve_captcha(SRC):
     except sr.UnknownValueError:
         try:
             key = r.recognize_bing(audio)
-        except sr.Recognizer.recognize_bing:
+        except TypeError:
             key = None
 
     return key
+

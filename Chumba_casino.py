@@ -21,7 +21,7 @@ delay = os.getenv('Delay')
 #start browser
 opts = uc.ChromeOptions()
 if chrome_profile == 'None':
-    opts.add_argument('incognito')
+    opts.add_argument('--incognito')
 else:
     opts.add_argument(fr"--user-data-dir={chrome_profile}")
 driver = uc.Chrome(options=opts,use_subprocess=True)#
@@ -61,11 +61,22 @@ def request_postal_code():
     delete_sample_files()
     if driver.current_url == "https://login.chumbacasino.com/":
         log_in()
+    
+    sleep(15)
     print('was logged in')
-    time.sleep(15)
+    time.sleep(2)
+    #daily reward pop-up 
+    try:
+        print("daily reward claimed")
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'daily-bonus__claim-btn'))).click()
+    except common.exceptions.NoSuchElementException:
+        print("daily reward already claimed")
+    except common.exceptions.TimeoutException:
+        print('daily reward claimed')
 
     # start-up POPUP
     try:
+        time.sleep(2)
         print('trying to close pop up')
         hover = ActionChains(driver)
         hover_item = driver.find_element(By.ID,'offer__close')
@@ -82,46 +93,65 @@ def request_postal_code():
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div/div/div[3]/footer/div/ul[1]/li[5]/button'))).click()
         sleep(20)
     except common.exceptions.NoSuchElementException:
+        time.sleep(10)
+        print('trying except block')
+        driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div[3]/footer/div/ul[1]/li[5]/button').click()
+    except common.exceptions.TimeoutException:
+        time.sleep(10)
         print('trying except block')
         driver.find_element(By.XPATH,'/html/body/div[1]/div/div/div[3]/footer/div/ul[1]/li[5]/button').click()
 
 
     #click the get postal code button at 2nd last page
-    print('entering 2nd last page')
     time.sleep(9)
-    driver.find_element(By.ID,'get-postal-request-code').click()
-    
+    print('entering 2nd last page')
+    try:
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable(driver.find_element(By.ID,'get-postal-request-code'))).click()
+    except common.exceptions.NoSuchElementException:
+        try:
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable(driver.find_element(By.ID,'get-postal-request-code'))).click()
+        except common.exceptions.NoSuchElementException:
+            print("coudn't find the element")
+            return
+
 
     time.sleep(8)
     print('clicking the check-box')
     #captcha solver here
-    WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']")))
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[@id='recaptcha-anchor']"))).click()
+    try:
+        WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,"iframe[name^='a-'][src^='https://www.google.com/recaptcha/api2/anchor?']")))
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[@id='recaptcha-anchor']"))).click()
 
     #switch to default iframe
-    driver.switch_to.default_content()
-
+        driver.switch_to.default_content()
+    except common.exceptions.TimeoutException:
+        print("failed to locate captcha")
+        return
     #switching to the select all images iframe
     WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH,"/html/body/div/div[4]/iframe")))
     print('fetching the url')
 
+# a = driver.find_element(By.XPATH, '//*[@id="recaptcha-audio-button"]').click()
+    try:
+        a = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="recaptcha-audio-button"]'))).click()
+        print('got element')
+        ####here#####
+        driver.switch_to.default_content()
+        WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, '/html/body/div/div[4]/iframe')))
+        links = driver.find_element(By.XPATH, '/html/body/div/div/div[7]/a').get_attribute('href')
 
-        
-    a = driver.find_element(By.XPATH, '//*[@id="recaptcha-audio-button"]').click()
-    print('got element')
-    ####here#####
-    driver.switch_to.default_content()
-    WebDriverWait(driver, 10).until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, '/html/body/div/div[4]/iframe')))
-    links = driver.find_element(By.XPATH, '/html/body/div/div/div[7]/a').get_attribute('href')
+        captcha_solution = solve_captcha(links)
+        if captcha_solution == None:
+            return
 
-    captcha_solution = solve_captcha(links)
-    if captcha_solution == None:
-        return
-
-    driver.find_element(By.XPATH,'/html/body/div/div/div[6]/input').send_keys(captcha_solution)
-    sleep(5)
-    driver.find_element(By.XPATH,'/html/body/div/div/div[8]/div[2]/div[1]/div[2]/button').click()
-    time.sleep(3)
+        driver.find_element(By.XPATH,'/html/body/div/div/div[6]/input').send_keys(captcha_solution)
+        sleep(5)
+        driver.find_element(By.XPATH,'/html/body/div/div/div[8]/div[2]/div[1]/div[2]/button').click()
+        time.sleep(3)
+    except common.exceptions.StaleElementReferenceException:
+        print('no captcha pop up was spoted')
+    except common.exceptions.TimeoutException:
+        print('no captcha pop up was spoted')
 
     #get postal code img
 
