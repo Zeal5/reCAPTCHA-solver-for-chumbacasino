@@ -30,10 +30,14 @@ def solve_captcha(SRC):
         audio = r.record(source)
     try:
         key = r.recognize_google(audio,language = 'en-US')
+        print("Generated text successfully")
     except sr.UnknownValueError:
         try:
+            print("Google failed to generate text\ntrying with Bing...")
             key = r.recognize_bing(audio)
+            print("text generated successfully with bing...")
         except TypeError:
+            print("Audio recording inaudible :( \nReloading page...")
             key = None
 
     return key
