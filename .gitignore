@@ -1,6 +1,5 @@
-.env
 screenshots
 __pycache__
 google_credentials.json
-
+.env
 token.json

@@ -1,4 +1,5 @@
 import time
+import random
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -12,11 +13,11 @@ import os
 import uuid
 #load variables
 load_dotenv()
-email = os.getenv('email')
-paswd = os.getenv('paswd')
+email          = os.getenv('email')
+paswd          = os.getenv('paswd')
 chrome_profile = os.getenv('Chrome_profile')
-delay = os.getenv('Delay')
-
+min_delay      = os.getenv('min_Delay')
+max_delay      = os.getenv('max_Delay')
 #start browser
 opts = uc.ChromeOptions()
 if chrome_profile == 'None':
@@ -155,9 +156,10 @@ def request_postal_code():
     generate_image_name = str(uuid.uuid4())
     print("saving screen Shot")
     driver.save_screenshot(f"screenshots\{generate_image_name}.png")
-    print(f"imagae {generate_image_name} saved @ {time.strftime('%X')} sleeping for {delay} ")
     upload_images(str(generate_image_name))
-    time.sleep(int(delay))
+    sleeper = random.randint(int(min_delay),int(max_delay))
+    print(f"imagae {generate_image_name} saved @ {time.strftime('%X')} sleeping for {sleeper} ")
+    time.sleep(sleeper)
 
 
 
