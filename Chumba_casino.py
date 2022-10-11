@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from upload_images import upload_images
 from selenium.common import exceptions
 from Convert_to_text import solve_captcha
 from dotenv import load_dotenv
@@ -37,6 +38,7 @@ def delete_sample_files():
             os.remove("sample.wav")
         else:
             print("The file does not exist")
+        time.sleep(5)
 
 #goto page  
 def open_page():
@@ -154,6 +156,7 @@ def request_postal_code():
     print("saving screen Shot")
     driver.save_screenshot(f"screenshots\{generate_image_name}.png")
     print(f"imagae {generate_image_name} saved @ {time.strftime('%X')} sleeping for {delay} ")
+    upload_images(str(generate_image_name))
     time.sleep(int(delay))
 
 
